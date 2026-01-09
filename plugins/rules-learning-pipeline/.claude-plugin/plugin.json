@@ -1,0 +1,35 @@
+{
+  "name": "rules-learning-pipeline",
+  "description": "Automated learning pipeline that evaluates model sessions, extracts lessons, detects wasteful patterns, and optimizes CLAUDE.md rules",
+  "version": "1.0.0",
+  "author": {
+    "name": "Noreddine Belhadj Cheikh",
+    "email": "noreddine.belhadjcheikh@gmail.com"
+  },
+  "license": "MIT",
+  "keywords": [
+    "learning",
+    "evaluation",
+    "optimization",
+    "rules",
+    "prompts",
+    "agentic",
+    "workflow"
+  ],
+  "commands": [
+    "learn-from-session",
+    "evaluate-model",
+    "critics-review",
+    "optimize-prompts"
+  ],
+  "agents": [
+    "model-evaluator",
+    "critics-reviewer",
+    "prompt-optimizer"
+  ],
+  "skills": [
+    "wasteful-pattern-detection",
+    "scope-classification",
+    "rule-optimization"
+  ]
+}

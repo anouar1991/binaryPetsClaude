@@ -1,0 +1,23 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "binaryPetsClaude",
+  "version": "1.0.0",
+  "description": "binaryPets Claude Code plugins marketplace",
+  "owner": {
+    "name": "Noreddine Belhadj Cheikh",
+    "email": "noreddine.belhadjcheikh@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "rules-learning-pipeline",
+      "description": "Automated learning pipeline that evaluates model sessions, extracts lessons, detects wasteful patterns, and optimizes CLAUDE.md rules",
+      "version": "1.0.0",
+      "author": {
+        "name": "Noreddine Belhadj Cheikh",
+        "email": "noreddine.belhadjcheikh@gmail.com"
+      },
+      "source": "./plugins/rules-learning-pipeline",
+      "category": "development"
+    }
+  ]
+}
