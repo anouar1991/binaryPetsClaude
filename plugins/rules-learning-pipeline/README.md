@@ -20,6 +20,7 @@ Automated learning pipeline that evaluates model sessions, extracts lessons, det
 ## Skills
 
 - **wasteful-pattern-detection** - Detect BDN, CIP, Verification Theater
+- **user-correction-detection** - Detect UCP, IEI, RIP, CIA, VSE (user corrections)
 - **scope-classification** - Classify lessons into correct scopes
 - **rule-optimization** - Transform lessons into optimized rules
 
@@ -31,6 +32,16 @@ Automated learning pipeline that evaluates model sessions, extracts lessons, det
 | CIP | Check → ignore errors → proceed |
 | Verification Theater | "verify" → errors → "looks good" |
 | Redundant Tool Chains | Multiple tools when one suffices |
+
+## User Correction Patterns Detected
+
+| Pattern | Description |
+|---------|-------------|
+| UCP | User had to correct model's wrong value (IP, port, path) |
+| IEI | Model ignored explicit instruction from user |
+| RIP | User repeated same request multiple times |
+| CIA | Model forgot critical info provided earlier in session |
+| VSE | Model substituted user's value with a default |
 
 ## License
 

@@ -101,6 +101,10 @@ Describe the execution error in plain language:
 | **Dismissive Reasoning** | Avoiding responsibility for found issues | "Labeled errors as 'pre-existing' or 'unrelated' without fixing" |
 | **Redundant Tool Calls** | Same result achievable with fewer calls | "Called Grep then Read when Read alone sufficed" |
 | **Scope Mismatch** | Tool scope doesn't match intent | "Ran full test suite to verify single file change" |
+| **User Correction Required** | User had to correct model's mistake | "User said IP is 172.17.0.4, model used 172.17.0.5" |
+| **Ignored Explicit Instruction** | Model didn't use value user provided | "User specified port 2525, model used default 25" |
+| **Repeated Instruction Ignored** | User repeated same request multiple times | "User asked to run tests 3 times before model complied" |
+| **Critical Info Amnesia** | Model forgot info provided earlier | "User gave password in turn 2, model asked for it in turn 15" |
 
 ### 2. Precision/Recall Analysis
 
@@ -159,6 +163,10 @@ Describe the execution error in plain language:
 | **Responsibility Avoidance** | Dismissing found issues | Used "pre-existing" to avoid fixing errors |
 | **Verification Theater** | Appearance of diligence without substance | Ran checks but ignored results |
 | **Tool Inefficiency** | Not knowing optimal tool usage | Used multi-step when single-step existed |
+| **User Input Neglect** | Didn't extract/use user-provided values | Used default port instead of user-specified one |
+| **Session Memory Failure** | Forgot critical info from earlier turns | Asked for password user already provided |
+| **Instruction Resistance** | Didn't comply with explicit user request | User asked 3x to run tests before compliance |
+| **Value Substitution** | Replaced user value with assumed "better" one | User said 6380, model used default 6379 |
 
 ### 5. Fix Suggestion
 
@@ -429,7 +437,11 @@ Phase 3: ANALYZE
 ├── Categorize error types
 ├── Assess impact of each deviation
 ├── Identify patterns across errors
-└── Determine root cause
+├── Determine root cause
+├── Detect user correction patterns (UCP, IEI, RIP, CIA, VSE)
+├── Extract explicit values from user messages
+├── Compare user values vs model actions
+└── Identify frustration markers
 
 Phase 4: GENERATE
 ├── Write evaluation report
@@ -591,6 +603,10 @@ Extract lessons not just from explicit errors, but also from:
 | **Wasteful sequences** | Broad tool → dismiss → narrow tool → lesson about direct targeting |
 | **Dismissive language** | Phrases like "pre-existing", "unrelated to my changes" → lesson about responsibility |
 | **Redundant checks** | Multiple tools for same verification → lesson about efficient tool choice |
+| **User corrections** | User corrects model's value/action → lesson about using exact user input |
+| **Repeated instructions** | User repeats request 2+ times → lesson about immediate compliance |
+| **Forgotten info** | User reminds model of earlier info → lesson about session memory |
+| **Value substitutions** | Model uses default instead of user value → lesson about respecting explicit values |
 
 ### Wasteful Pattern Detection (CRITICAL)
 
@@ -662,6 +678,100 @@ Flag these phrases as indicators of **Responsibility Avoidance**:
 
 ---
 
+### User Correction Pattern Detection (CRITICAL)
+
+**MUST** detect patterns where users have to correct the model or provide information multiple times.
+
+#### Pattern 1: User Correction Pattern (UCP)
+```
+Sequence detected:
+1. User: "SSH to 172.17.0.4"
+2. Model: Bash(ssh 172.17.0.5)       # Wrong value!
+3. User: "No, the IP is 172.17.0.4"  # Correction
+
+→ ERROR TYPE: User Correction Required
+→ ROOT CAUSE: User Input Neglect
+→ LESSON: "MUST use exact IP addresses provided by user"
+→ SEVERITY: Critical (escalates with each correction)
+```
+
+#### Pattern 2: Ignored Explicit Instruction (IEI)
+```
+Sequence detected:
+1. User: "Use port 2525 for the content filter"
+2. Model: Edit(main.cf, "content_filter = smtp:127.0.0.1:10025")
+
+→ ERROR TYPE: Ignored Explicit Instruction
+→ ROOT CAUSE: User Input Neglect
+→ LESSON: "MUST extract and use explicit values from user instructions"
+→ SEVERITY: Critical
+```
+
+#### Pattern 3: Repeated Instruction Pattern (RIP)
+```
+Sequence detected:
+1. User: "Run the tests"
+2. Model: [does something else]
+3. User: "Please run the tests"
+4. Model: [still doesn't run tests]
+
+→ ERROR TYPE: Repeated Instruction Ignored
+→ ROOT CAUSE: Instruction Resistance
+→ LESSON: "MUST address user's explicit request before other actions"
+→ SEVERITY: Warning (2x) → Critical (3x+)
+```
+
+#### Pattern 4: Critical Info Amnesia (CIA)
+```
+Sequence detected:
+1. User: "The password is 'secret123'"
+2. [... many turns later ...]
+3. Model: "What's the database password?"
+
+→ ERROR TYPE: Critical Info Amnesia
+→ ROOT CAUSE: Session Memory Failure
+→ LESSON: "MUST track and reuse critical info (credentials, IPs, ports) from earlier in session"
+→ SEVERITY: Critical
+```
+
+#### Pattern 5: Value Substitution Error (VSE)
+```
+Sequence detected:
+1. User: "Connect to Redis on port 6380"
+2. Model: Bash(redis-cli -p 6379)    # Used default instead!
+
+→ ERROR TYPE: User Correction Required (Value Substitution)
+→ ROOT CAUSE: Value Substitution
+→ LESSON: "NEVER substitute user-provided values with defaults"
+→ SEVERITY: Critical
+```
+
+### Value Categories to Track
+
+Extract and track these value types from user messages:
+
+| Category | Examples | Common Mistakes |
+|----------|----------|-----------------|
+| IP Address | 172.17.0.4, 192.168.1.1 | Typos, wrong octets |
+| Port | 2525, 8080, 6380 | Using defaults (25, 80, 6379) |
+| Password/Secret | 'secret123', API keys | Asking again, using wrong value |
+| File Path | /etc/postfix/main.cf | Wrong directory, wrong filename |
+| URL | https://api.example.com | Wrong domain, wrong protocol |
+| Username | admin, zimbra, root | Mixing up usernames |
+
+### Frustration Marker Detection
+
+Escalate severity when user shows frustration:
+
+| Marker | Example | Action |
+|--------|---------|--------|
+| Exclamation | "Use 172.17.0.4!" | Severity × 1.5 |
+| Caps | "The IP is 172.17.0.4" | Severity × 1.5 |
+| "I said/told you" | "I already told you the password" | Severity × 2 |
+| Repetition | "Again, the port is 2525" | Severity × 2 |
+
+---
+
 ## Quality Criteria
 
 Before finalizing evaluation:
@@ -678,3 +788,6 @@ Before finalizing evaluation:
 - [ ] **Wasteful patterns detected (BDN, CIP, RV, SO)**
 - [ ] **Dismissive language flagged**
 - [ ] **Tool efficiency analyzed**
+- [ ] **User correction patterns detected (UCP, IEI, RIP, CIA, VSE)**
+- [ ] **Frustration markers identified and severity escalated**
+- [ ] **Critical user-provided values tracked (IPs, ports, passwords, paths)**
