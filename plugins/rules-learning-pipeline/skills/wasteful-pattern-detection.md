@@ -1,11 +1,13 @@
 ---
 name: wasteful-pattern-detection
-description: Detect wasteful workflow patterns and dismissive reasoning in model sessions
+description: Detect wasteful workflow patterns, dismissive reasoning, and user correction patterns in model sessions
 ---
 
 # Wasteful Pattern Detection Skill
 
-Identifies anti-patterns in model workflows that waste resources or avoid responsibility.
+Identifies anti-patterns in model workflows that waste resources, avoid responsibility, or require user corrections.
+
+> **See also**: `user-correction-detection.md` for patterns where users have to correct the model or repeat themselves.
 
 ## Patterns Detected
 
@@ -109,6 +111,20 @@ Example sequence:
 - Only portion of result relevant
 
 **Lesson**: "MUST scope verification to match change scope"
+
+---
+
+## User Correction Patterns (See: user-correction-detection.md)
+
+These patterns are detected by the companion skill but are equally critical:
+
+| Pattern | Description | Lesson |
+|---------|-------------|--------|
+| UCP | User had to correct model's value | "MUST use exact values provided by user" |
+| IEI | Model ignored explicit instruction | "MUST extract and use explicit values" |
+| RIP | User repeated same request 2+ times | "MUST address requests immediately" |
+| CIA | Model forgot info from earlier turns | "MUST track critical info in session" |
+| VSE | Model substituted default for user value | "NEVER substitute user values" |
 
 ---
 

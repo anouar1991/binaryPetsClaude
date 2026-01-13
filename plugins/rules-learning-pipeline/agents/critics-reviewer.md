@@ -133,11 +133,98 @@ IF session involves .env, config files, ports:
   → Include exact values, not just "configure properly"
 ```
 
-#### E. Wasteful Workflow Patterns (CRITICAL)
+#### E. User Correction Patterns (CRITICAL)
+
+**MUST** detect patterns where users had to correct the model or repeat themselves:
+
+##### E.1 User Correction Pattern (UCP)
+```
+Pattern: User provides value → model uses wrong value → user corrects
+Example:
+  1. User: "SSH to 172.17.0.4"
+  2. Model: Bash(ssh 172.17.0.5)    # Wrong!
+  3. User: "No, 172.17.0.4"
+
+Detection:
+  - User message contains explicit value (IP, port, password, path)
+  - Model action uses different value
+  - User correction follows
+
+Lesson: "MUST use exact values provided by user"
+Scope: user-general
+```
+
+##### E.2 Ignored Explicit Instruction (IEI)
+```
+Pattern: User specifies value → model ignores it
+Example:
+  1. User: "Use port 2525"
+  2. Model: Edit(config, "port=10025")  # Ignored user value!
+
+Detection:
+  - User provides explicit value
+  - Model action doesn't use it
+  - Value is clearly extractable
+
+Lesson: "MUST extract and use explicit values from user instructions"
+Scope: user-general
+```
+
+##### E.3 Repeated Instruction Pattern (RIP)
+```
+Pattern: User repeats same request multiple times
+Example:
+  1. User: "Run the tests"
+  2. Model: [does something else]
+  3. User: "Please run the tests"
+  4. Model: [still doesn't]
+
+Detection:
+  - Same semantic instruction 2+ times
+  - Model doesn't address it between repetitions
+
+Lesson: "MUST address user's explicit request immediately"
+Scope: user-general
+```
+
+##### E.4 Critical Info Amnesia (CIA)
+```
+Pattern: User provides info → model forgets later
+Example:
+  1. User: "Password is secret123"
+  2. [10 turns later]
+  3. Model: "What's the password?"
+
+Detection:
+  - Critical info provided early (credentials, IPs, ports)
+  - Model asks for same info later OR doesn't use it when needed
+
+Lesson: "MUST track critical info throughout session"
+Scope: user-general
+```
+
+##### E.5 Value Substitution Error (VSE)
+```
+Pattern: Model substitutes user's value with default
+Example:
+  1. User: "Redis on port 6380"
+  2. Model: Bash(redis-cli -p 6379)  # Used default!
+
+Detection:
+  - User provides non-default value
+  - Model uses common default instead
+
+Lesson: "NEVER substitute user values with defaults"
+Scope: user-general
+```
+
+---
+
+#### F. Wasteful Workflow Patterns (CRITICAL)
 
 **MUST** detect these anti-patterns even if model-evaluator missed them:
 
-##### E.1 Broad-Dismiss-Narrow (BDN)
+##### F.1 Broad-Dismiss-Narrow (BDN)
 ```
 Pattern: Broad check → errors found → dismissal → narrow check
 Example:
@@ -154,7 +241,7 @@ Lesson: "MUST scope verification to match change scope from the start"
 Scope: user-general
 ```
 
-##### E.2 Check-Ignore-Proceed (CIP)
+##### F.2 Check-Ignore-Proceed (CIP)
 ```
 Pattern: Run check → see errors → ignore → continue
 Example:
@@ -172,7 +259,7 @@ Lesson: "MUST address all errors found during checks OR acknowledge explicitly"
 Scope: user-general
 ```
 
-##### E.3 Verification Theater
+##### F.3 Verification Theater
 ```
 Pattern: Appearance of diligence without substance
 Example:
@@ -190,7 +277,7 @@ Lesson: "MUST accurately report check results - NEVER claim success when errors 
 Scope: user-general
 ```
 
-##### E.4 Redundant Tool Chains
+##### F.4 Redundant Tool Chains
 ```
 Pattern: Multiple tools when one suffices
 Example:
@@ -311,6 +398,37 @@ IF lesson is about a known framework (Claude, Django, React, etc.):
 
 ---
 
+## User Correction Pattern Audit
+
+| Pattern | Detected? | Instance | Lesson Generated? |
+|---------|-----------|----------|-------------------|
+| User Correction (UCP) | ✅/❌ | {description} | ✅/❌ |
+| Ignored Instruction (IEI) | ✅/❌ | {description} | ✅/❌ |
+| Repeated Instruction (RIP) | ✅/❌ | {description} | ✅/❌ |
+| Critical Info Amnesia (CIA) | ✅/❌ | {description} | ✅/❌ |
+| Value Substitution (VSE) | ✅/❌ | {description} | ✅/❌ |
+
+### User-Provided Values Tracked
+| Category | User Value | Model Used | Correct? |
+|----------|------------|------------|----------|
+| IP Address | 172.17.0.4 | 172.17.0.5 | ❌ |
+| Port | 2525 | 10025 | ❌ |
+
+### Frustration Markers Found
+| Marker | Context | Turn | Severity Impact |
+|--------|---------|------|-----------------|
+| "I said" | After IP correction | 12 | 2x |
+| "!" | After repeated request | 15 | 1.5x |
+
+### User Correction Lessons Required
+- {If UCP detected}: "MUST use exact values provided by user"
+- {If IEI detected}: "MUST extract and use explicit values from instructions"
+- {If RIP detected}: "MUST address user requests immediately"
+- {If CIA detected}: "MUST track critical info throughout session"
+- {If VSE detected}: "NEVER substitute user values with defaults"
+
+---
+
 ## Wasteful Pattern Audit
 
 | Pattern | Detected? | Instance | Lesson Generated? |
@@ -353,6 +471,7 @@ IF lesson is about a known framework (Claude, Django, React, etc.):
 | Scope Misclassification | X | Y |
 | Specificity Failures | X | Y |
 | Missed Opportunities | X | Y |
+| User Correction Patterns | X | Y |
 | Wasteful Patterns | X | Y |
 | Dismissive Language | X | Y |
 | Route Decision Errors | X | Y |
@@ -393,7 +512,34 @@ Phase 4: FIND MISSED OPPORTUNITIES
 │   └── Config patterns
 └── Generate missed opportunities list
 
-Phase 5: AUDIT WASTEFUL PATTERNS (NEW)
+Phase 5: AUDIT USER CORRECTION PATTERNS (NEW)
+├── Scan for User Correction Pattern (UCP):
+│   ├── Extract explicit values from user messages (IPs, ports, paths, passwords)
+│   ├── Track values in session context
+│   ├── Compare against model actions
+│   └── Flag mismatches
+├── Scan for Ignored Explicit Instructions (IEI):
+│   ├── Find user messages with explicit values
+│   ├── Verify model used those values
+│   └── Flag omissions
+├── Scan for Repeated Instructions (RIP):
+│   ├── Find similar user requests
+│   ├── Check if model addressed them
+│   └── Flag unaddressed repetitions
+├── Scan for Critical Info Amnesia (CIA):
+│   ├── Track critical info provided (credentials, IPs, ports)
+│   ├── Check later turns for reuse
+│   └── Flag when model asks for info already provided
+├── Scan for Value Substitution (VSE):
+│   ├── Find user non-default values
+│   ├── Check if model used defaults instead
+│   └── Flag substitutions
+├── Detect frustration markers:
+│   ├── "I said/told you", exclamation marks, caps
+│   └── Escalate severity accordingly
+└── Generate user correction audit table
+
+Phase 6: AUDIT WASTEFUL PATTERNS
 ├── Scan for Broad-Dismiss-Narrow sequences:
 │   ├── Find broad commands (tsc, npm test, lint)
 │   ├── Check for dismissive language after errors
@@ -416,16 +562,16 @@ Phase 5: AUDIT WASTEFUL PATTERNS (NEW)
 │   └── Flag as critical if responsibility avoidance
 └── Generate wasteful pattern audit table
 
-Phase 6: AUDIT ROUTING
+Phase 7: AUDIT ROUTING
 ├── For each routing decision:
 │   ├── Verify critical detection
 │   ├── Verify threshold application
 │   └── Check proactive creation
 └── Generate routing audit table
 
-Phase 7: GENERATE REPORT
+Phase 8: GENERATE REPORT
 ├── Compile all audits
-├── Calculate totals (including wasteful patterns)
+├── Calculate totals (including user correction + wasteful patterns)
 ├── Determine verdict
 └── Generate recommendations
 ```
@@ -445,6 +591,8 @@ Phase 7: GENERATE REPORT
 - Specificity score of 0
 - Missed critical pattern (caused visible error)
 - Wrong threshold application for critical rules
+- **Undetected User Correction Pattern (UCP, IEI, RIP, CIA, VSE)**
+- **User frustration markers not identified**
 - **Undetected Wasteful Pattern (BDN, CIP, Verification Theater)**
 - **Unflagged Dismissive Language ("pre-existing", "not related")**
 - **Redundant tool chains not identified**
