@@ -331,23 +331,92 @@ zmzimletctl listZimlets
 zmzimletctl undeploy com_mycompany_myzimlet
 ```
 
+## DWT Widget Library (Discrete Widget Toolkit)
+
+Classic zimlets use Zimbra's proprietary DWT library for UI components. Understanding DWT is essential for building Classic zimlets.
+
+### Key Widget Classes
+
+| Widget | Purpose | Usage |
+|--------|---------|-------|
+| `DwtControl` | Base class | Everything extends this |
+| `DwtButton` | Clickable button | `new DwtButton({parent: shell})` |
+| `DwtToolBarButton` | Toolbar button | `new DwtToolBarButton({parent: toolbar})` |
+| `DwtListView` | List display | For displaying items in a list |
+| `DwtMenu` | Dropdown menu | For context menus |
+| `DwtDialog` | Modal dialog | `new ZmDialog({...})` |
+| `DwtComposite` | Container | Group child widgets |
+| `ZmToast` | Notifications | Popup messages |
+
+### Creating a Button
+
+```javascript
+// Create a button in the toolbar
+com_mycompany_myzimlet_HandlerObject.prototype.initializeToolbar =
+function(app, toolbar, controller, viewId) {
+    // Check we're in the Mail view
+    if (viewId.indexOf("ZM_MAIL") >= 0) {
+        // Create the button
+        var button = new DwtToolBarButton({parent: toolbar});
+        button.setText("My Action");
+        button.setImage("MyIcon");
+
+        // Attach click listener (note: must bind 'this' with AjxListener)
+        button.addSelectionListener(
+            new AjxListener(this, this._handleButtonClick)
+        );
+    }
+};
+
+com_mycompany_myzimlet_HandlerObject.prototype._handleButtonClick = function(ev) {
+    // Use Zimbra's status message instead of console.log
+    appCtxt.setStatusMsg("Button clicked!", ZmStatusView.LEVEL_INFO);
+};
+```
+
+### Namespace Safety
+
+**Important:** Classic UI uses global CSS. Always prefix your CSS classes:
+
+```css
+/* WRONG - can break Zimbra layout */
+.container { padding: 10px; }
+
+/* CORRECT - namespaced */
+.Com_MyCompany_MyZimlet_container { padding: 10px; }
+```
+
+```javascript
+// WRONG - global variable pollution
+var myVar = "value";
+
+// CORRECT - use prototype
+Com_MyCompany_MyZimlet.prototype.myVar = "value";
+```
+
 ## Debugging
+
+### URL Parameters for Debug Mode
+
+```
+https://mail.domain.com/?dev=1          # Developer mode (unminified)
+https://mail.domain.com/?debug=1        # SOAP debug window
+https://mail.domain.com/?mode=mjsf      # Individual JS files for breakpoints
+```
 
 ### Browser Console
 
 ```javascript
-// Add debug logging
+// Option 1: Standard console
 console.log("[MyZimlet] Initializing...");
-console.log("[MyZimlet] User property:", this.getUserProperty("mySetting"));
-```
 
-### Debug Mode URL
+// Option 2: Zimbra Status Message (visible in UI - recommended)
+var appCtxt = this.getContext();
+appCtxt.setStatusMsg("MyZimlet initialized!", ZmStatusView.LEVEL_INFO);
 
+// Option 3: AjxDebug (appears in debug window with ?debug=1)
+AjxDebug.println("[MyZimlet] User property: " + this.getUserProperty("mySetting"));
 ```
-https://mail.domain.com/?dev=1
-```
-
-Loads unminified JavaScript for debugging.
 
 ## Additional Resources
 

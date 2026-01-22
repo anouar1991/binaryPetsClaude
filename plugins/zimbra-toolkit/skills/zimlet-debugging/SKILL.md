@@ -8,6 +8,28 @@ version: 1.0.0
 
 Comprehensive guide for debugging zimlets during development and troubleshooting production issues.
 
+> **💡 Pro Tip:** Mastering Zimbra debugging requires being a "Full-Stack Detective" - errors can occur in the browser, network transport (SOAP/GraphQL), or deep in the Java server.
+
+## The "Secret" URL Parameters
+
+The most important debugging step is telling Zimbra to stop hiding its code:
+
+| Parameter | Description |
+|-----------|-------------|
+| `?dev=1` | **Developer Mode** - Forces unminified source files so breakpoints work |
+| `?debug=1` | Opens built-in Zimbra debug window showing SOAP traffic in real-time |
+| `?debug=2` | More verbose debug output |
+| `?debug=3` | Maximum verbosity for SOAP/request debugging |
+| `?mode=mjsf` | **Multiple JS Files** - Loads every JS file separately for reliable breakpoints |
+| `?zimletSlots=show` | **Modern UI** - Visualizes all available slot locations |
+
+**Example URLs:**
+```
+https://mail.yourdomain.com/?dev=1
+https://mail.yourdomain.com/?dev=1&debug=3
+https://mail.yourdomain.com/modern/?zimletSlots=show
+```
+
 ## Development Setup
 
 ### Modern Zimlets (Sideloader)
@@ -96,11 +118,22 @@ export default function Zimlet(context) {
 
 ```javascript
 com_mycompany_myzimlet_HandlerObject.prototype.init = function() {
+    // Option 1: Standard console (appears in browser DevTools)
     console.log("[MyZimlet] init() called");
-    console.log("[MyZimlet] User properties:", this.getUserProperty("allProperties"));
+
+    // Option 2: Zimbra Status Message (appears in UI - recommended!)
+    var appCtxt = this.getContext(); // or window.appCtxt
+    appCtxt.setStatusMsg("MyZimlet initialized!", ZmStatusView.LEVEL_INFO);
+
+    // Option 3: AjxDebug for verbose debugging
     DBG.println(AjxDebug.DBG1, "[MyZimlet] Debug level message");
+
+    // Option 4: Debug window (requires ?debug=1 URL param)
+    AjxDebug.println("[MyZimlet] User properties: " + this.getUserProperty("allProperties"));
 };
 ```
+
+**Tip:** Prefer `setStatusMsg()` over `console.log` for quick visual feedback during development.
 
 ### Network Tab Analysis
 
@@ -112,6 +145,24 @@ Monitor GraphQL and SOAP requests:
    - `service/soap` for Classic zimlets
 3. Inspect request/response payloads
 4. Check for error responses (look for `faultcode`)
+
+**Pro Tip - Replay Attacks:** If an API call fails, don't refresh the page repeatedly:
+1. Right-click the request in Network tab
+2. Select "Copy as cURL"
+3. Paste into Postman or terminal
+4. Tweak parameters until it works
+
+### Apollo DevTools (Modern UI)
+
+For Modern zimlets using GraphQL, install the **Apollo Client DevTools** browser extension:
+
+1. Install from Chrome/Firefox extension store
+2. Open DevTools → Apollo tab
+3. View the GraphQL cache state in memory
+4. Inspect all queries and their cached results
+5. See exactly what data is available to your components
+
+This is essential because you can't debug GraphQL just by looking at network requests - you need to see the cache!
 
 ### Breakpoint Debugging
 
@@ -331,6 +382,21 @@ function MyComponent() {
 
 ## Server-Side Debugging
 
+### Enable Debug Logging for Specific Account
+
+Turn on debug logging for a specific user without restarting the server:
+
+```bash
+# Enable debug logging for zimlet operations
+zmprov addAccountLogger user@domain.com zimbra.zimlet debug
+
+# View logs in real-time
+tail -f /opt/zimbra/log/mailbox.log | grep -i "your_zimlet_name"
+
+# Remove debug logging when done
+zmprov removeAccountLogger user@domain.com zimbra.zimlet
+```
+
 ### Check Zimlet Logs
 
 ```bash
@@ -339,6 +405,9 @@ tail -f /opt/zimbra/log/mailbox.log | grep -i zimlet
 
 # Search for specific zimlet
 grep "my-zimlet" /opt/zimbra/log/mailbox.log
+
+# Watch for errors in real-time
+tail -f /opt/zimbra/log/mailbox.log | grep -E "(ERROR|WARN|zimlet)"
 ```
 
 ### Verify Zimlet Configuration
@@ -395,6 +464,19 @@ zmmailboxdctl restart
 - [ ] `init()` function called (add console.log)
 - [ ] No JavaScript errors in console
 
+## Quick Troubleshooting Table
+
+| Symptom | Likely Cause | Solution |
+|---------|--------------|----------|
+| Zimlet doesn't appear | Cache or permissions | Run `zmprov fc zimlet` and check User Preferences → Zimlets tab |
+| "Permission Denied" | `allowedDomains` not set | Check `config_template.xml` and whitelist the domain |
+| JS changes not showing | Browser caching | Use `?dev=1` or hard-refresh (Ctrl+F5) |
+| SOAP Error 500 | Bad XML/JSON | Inspect Network tab for missing required SOAP headers |
+| External API fails | CORS blocked | Route through Zimbra proxy or whitelist in `config_template.xml` |
+| White screen after load | JS syntax error | Check for `debugger;` statements in production code |
+| Slot not rendering | Wrong slot name | Use `?zimletSlots=show` to verify slot names |
+| "undefined is not a function" | Minification issue | Test with `?mode=mjsf` to load individual files |
+
 ## Additional Resources
 
 ### Reference Files
@@ -406,3 +488,9 @@ zmmailboxdctl restart
 
 - **`examples/debug-logging.js`** - Comprehensive logging setup
 - **`examples/error-boundary.js`** - Error handling component
+
+### Browser Extensions
+
+- **Preact DevTools** - Inspect component state and props
+- **Apollo Client DevTools** - Debug GraphQL cache and queries
+- **React Developer Tools** - Works with Preact compatibility layer
