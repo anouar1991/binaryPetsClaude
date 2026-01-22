@@ -1,40 +1,78 @@
 # Zimbra Toolkit Plugin
 
-A comprehensive Claude Code plugin for Zimbra administrators and developers.
+A comprehensive Claude Code plugin for Zimbra administrators and zimlet developers. Covers both Classic and Modern UI development with expert-level debugging techniques.
 
 ## Features
 
 ### Skills (Auto-activate based on context)
 
-- **zimbra-admin** - Server administration with zmprov, zmcontrol, user/domain management
-- **zimbra-mail-flow** - Postfix integration, content filters, queues, routing
-- **zimbra-api** - SOAP API, REST API, LDAP queries, authentication
-- **zimlet-classic** - Classic zimlet development (XML, JavaScript, slots, panels)
-- **zimlet-modern** - Modern zimlet development (React/Preact, GraphQL, slots)
-- **zimlet-debugging** - Sideloader, browser debugging, logging, troubleshooting
+| Skill | Triggers | Coverage |
+|-------|----------|----------|
+| **zimbra-admin** | "zmprov", "zmcontrol", "zimbra user" | Server administration, user/domain management, COS |
+| **zimbra-mail-flow** | "postfix", "content filter", "mail queue" | MTA integration, routing, spam filtering |
+| **zimbra-api** | "SOAP API", "REST API", "LDAP" | API integration, authentication, queries |
+| **zimlet-classic** | "classic zimlet", "zimlet XML", "DWT" | XML manifests, JavaScript handlers, DWT widgets |
+| **zimlet-modern** | "modern zimlet", "Preact", "GraphQL" | Component development, 50+ slots, Apollo |
+| **zimlet-debugging** | "debug zimlet", "sideloader", "zimlet error" | Expert debugging, URL parameters, troubleshooting |
 
 ### Commands
 
-- `/zimbra:diagnose` - Diagnose Zimbra services, ports, and common issues
-- `/zimbra:provision` - Guide through user/domain provisioning
-- `/zimbra:zimlet-scaffold` - Generate zimlet project boilerplate (Classic or Modern)
-- `/zimbra:backup-config` - Export current Zimbra configuration
-- `/zimbra:zimlet-sideload` - Setup and use the zimlet sideloader
+| Command | Description |
+|---------|-------------|
+| `/zimbra:diagnose` | Diagnose Zimbra services, ports, and common issues |
+| `/zimbra:provision` | Guide through user/domain provisioning |
+| `/zimbra:zimlet-scaffold` | Generate zimlet project boilerplate (Classic or Modern) |
+| `/zimbra:backup-config` | Export current Zimbra configuration |
+| `/zimbra:zimlet-sideload` | Setup and use the zimlet sideloader for development |
 
 ### Agents
 
-- **zimbra-troubleshooter** - Autonomous debugging of Zimbra issues
-- **zimlet-reviewer** - Code review for zimlet best practices
+| Agent | Trigger | Purpose |
+|-------|---------|---------|
+| **zimbra-troubleshooter** | "emails not delivering", "zimbra error" | Autonomous layer-by-layer debugging |
+| **zimlet-reviewer** | "review my zimlet", "zimlet code review" | Best practices and security review |
+
+## Key Documentation
+
+### Modern Zimlet Development
+
+- **50+ UI Slots** - Comprehensive slot reference organized by category (Header, Email, Calendar, Briefcase, etc.)
+- **Code Patterns** - Project structure, component patterns, store patterns, service layer
+- **GraphQL Integration** - Apollo Client usage, queries, mutations
+- **Essential Tip:** Add `?zimletSlots=show` to your Zimbra URL to visualize all slot locations!
+
+### Classic Zimlet Development
+
+- **DWT Widget Library** - `DwtControl`, `DwtButton`, `DwtListView`, `DwtMenu`, `ZmToast`
+- **XML Schema** - `<zimletPanelItem>`, `<contentObject>`, `<contextMenu>`
+- **Namespace Safety** - CSS/JS prefixing to avoid conflicts
+
+### Expert Debugging Techniques
+
+| URL Parameter | Purpose |
+|---------------|---------|
+| `?dev=1` | Developer mode - unminified source files |
+| `?debug=1/2/3` | Built-in Zimbra debug window for SOAP traffic |
+| `?mode=mjsf` | Multiple JS Files - individual files for breakpoints |
+| `?zimletSlots=show` | Visualize Modern UI slot locations |
 
 ## Installation
 
+### Via Marketplace (Recommended)
+
+```bash
+# Add marketplace
+claude plugin marketplace add https://github.com/anouar1991/binaryPetsClaude
+
+# Install plugin
+claude plugin install zimbra-toolkit@binaryPetsClaude
+```
+
 ### Local Development
+
 ```bash
 claude --plugin-dir /path/to/zimbra-toolkit
 ```
-
-### Add to Project
-Copy to your project's `.claude-plugins/` directory.
 
 ## Configuration (Optional)
 
@@ -54,75 +92,97 @@ Additional notes about this Zimbra installation...
 
 ## Supported Versions
 
-- Zimbra 8.8.x (Legacy)
-- Zimbra 9.x
-- Zimbra 10.x
+- Zimbra 8.8.x (Legacy/Classic UI)
+- Zimbra 9.x (Classic + Modern UI)
+- Zimbra 10.x (Modern UI preferred)
 
-## Testing the Plugin
+## Quick Start Examples
 
-### Test Installation
-
-```bash
-# From the zimbra-toolkit directory
-claude --plugin-dir .
+### Ask about administration
+```
+"How do I create a Zimbra distribution list with zmprov?"
+→ Triggers zimbra-admin skill
 ```
 
-### Verify Skills Load
+### Ask about zimlet development
+```
+"How do I add a button to the email toolbar in Modern UI?"
+→ Triggers zimlet-modern skill with slot documentation
+```
 
-Ask questions that should trigger skills:
+### Debug a zimlet issue
+```
+"My zimlet isn't loading in the browser"
+→ Triggers zimlet-debugging skill with troubleshooting steps
+```
 
-- "How do I create a Zimbra user with zmprov?" → Should load `zimbra-admin`
-- "How do I set up a content filter in Postfix?" → Should load `zimbra-mail-flow`
-- "How do I use the Zimbra SOAP API?" → Should load `zimbra-api`
-- "How do I create a classic zimlet?" → Should load `zimlet-classic`
-- "How do I create a modern zimlet with Preact?" → Should load `zimlet-modern`
-- "My zimlet isn't loading, how do I debug it?" → Should load `zimlet-debugging`
-
-### Test Commands
-
-```bash
-# In Claude Code session:
-/zimbra:diagnose
-/zimbra:provision user test@domain.com
+### Use a command
+```
 /zimbra:zimlet-scaffold modern my-zimlet
-/zimbra:backup-config ./backup
-/zimbra:zimlet-sideload setup
+→ Generates complete modern zimlet boilerplate
 ```
-
-### Test Agents
-
-Create scenarios that should trigger agents:
-
-- "Emails aren't being delivered, can you help?" → Should trigger `zimbra-troubleshooter`
-- "Can you review my zimlet code in com_acme_tracker?" → Should trigger `zimlet-reviewer`
-
-## Resources
-
-- [Zimbra Documentation](https://zimbra.github.io/zm-api-docs/)
-- [Zimlet Development Guide](https://github.com/Zimbra/zimlet-cli)
-- [Zimbra GitHub](https://github.com/Zimbra)
 
 ## Plugin Structure
 
 ```
 zimbra-toolkit/
 ├── .claude-plugin/
-│   └── plugin.json              # Plugin manifest
+│   └── plugin.json
 ├── agents/
-│   ├── zimbra-troubleshooter.md # Debugging agent
-│   └── zimlet-reviewer.md       # Code review agent
+│   ├── zimbra-troubleshooter.md
+│   └── zimlet-reviewer.md
 ├── commands/
-│   ├── diagnose.md              # /zimbra:diagnose
-│   ├── provision.md             # /zimbra:provision
-│   ├── zimlet-scaffold.md       # /zimbra:zimlet-scaffold
-│   ├── backup-config.md         # /zimbra:backup-config
-│   └── zimlet-sideload.md       # /zimbra:zimlet-sideload
+│   ├── diagnose.md
+│   ├── provision.md
+│   ├── zimlet-scaffold.md
+│   ├── backup-config.md
+│   └── zimlet-sideload.md
 ├── skills/
-│   ├── zimbra-admin/            # Administration skill
-│   ├── zimbra-mail-flow/        # Mail transport skill
-│   ├── zimbra-api/              # API integration skill
-│   ├── zimlet-classic/          # Classic zimlet skill
-│   ├── zimlet-modern/           # Modern zimlet skill
-│   └── zimlet-debugging/        # Debugging skill
+│   ├── zimbra-admin/
+│   │   ├── SKILL.md
+│   │   └── references/
+│   │       ├── zmprov-commands.md
+│   │       └── ldap-attributes.md
+│   ├── zimbra-mail-flow/
+│   │   └── SKILL.md
+│   ├── zimbra-api/
+│   │   └── SKILL.md
+│   ├── zimlet-classic/
+│   │   ├── SKILL.md
+│   │   └── references/
+│   ├── zimlet-modern/
+│   │   ├── SKILL.md
+│   │   └── references/
+│   │       ├── slot-api.md          # 50+ slots documented
+│   │       ├── code-patterns.md     # Best practices
+│   │       └── graphql-schema.md
+│   └── zimlet-debugging/
+│       ├── SKILL.md
+│       └── references/
+│           └── sideloader-setup.md
 └── README.md
 ```
+
+## Resources
+
+### Official Documentation
+- [Zimbra API Documentation](https://zimbra.github.io/zm-api-docs/)
+- [Zimbra Wiki - ModernUI Zimlets](https://wiki.zimbra.com/wiki/ModernUI-Zimlets)
+- [Zimlet Development Guide](https://github.com/Zimbra/zm-zimlet-guide)
+
+### Example Zimlets
+- [zimbra-zimlet-nextcloud](https://github.com/Zimbra/zimbra-zimlet-nextcloud)
+- [zimbra-zimlet-sticky-notes](https://github.com/Zimbra/zimbra-zimlet-sticky-notes)
+- [Zimbra Zimlet Gallery](https://gallery.zetalliance.org/extend/category/modern)
+
+### Development Tools
+- [Preact Documentation](https://preactjs.com/guide/v10/getting-started)
+- [Apollo Client DevTools](https://www.apollographql.com/docs/react/development-testing/developer-tooling/)
+
+## Contributing
+
+Found an issue or want to add more documentation? Contributions welcome!
+
+## License
+
+MIT
