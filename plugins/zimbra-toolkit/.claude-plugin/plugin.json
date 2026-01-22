@@ -1,0 +1,18 @@
+{
+  "name": "zimbra-toolkit",
+  "version": "1.0.0",
+  "description": "Comprehensive toolkit for Zimbra administration, mail flow management, API integration, and Zimlet development (Classic and Modern)",
+  "author": {
+    "name": "Noreddine Belhadj Cheikh",
+    "email": "noreddine@example.com"
+  },
+  "keywords": [
+    "zimbra",
+    "mail-server",
+    "zimlet",
+    "postfix",
+    "ldap",
+    "soap-api",
+    "graphql"
+  ]
+}
