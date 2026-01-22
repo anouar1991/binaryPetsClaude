@@ -18,6 +18,17 @@
       },
       "source": "./plugins/rules-learning-pipeline",
       "category": "development"
+    },
+    {
+      "name": "zimbra-toolkit",
+      "description": "Comprehensive toolkit for Zimbra administration, mail flow management, API integration, and Zimlet development (Classic and Modern)",
+      "version": "1.0.0",
+      "author": {
+        "name": "Noreddine Belhadj Cheikh",
+        "email": "noreddine.belhadjcheikh@gmail.com"
+      },
+      "source": "./plugins/zimbra-toolkit",
+      "category": "development"
     }
   ]
 }
