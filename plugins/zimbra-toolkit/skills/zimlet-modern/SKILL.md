@@ -8,6 +8,8 @@ version: 1.0.0
 
 Guide for developing zimlets for the Zimbra Modern Web Client using Preact, GraphQL, and the zimlet-cli toolchain.
 
+> **💡 Essential Tip:** Add `?zimletSlots=show` to your Zimbra URL to visualize all available slot locations in the UI!
+
 ## Architecture Overview
 
 Modern zimlets are Preact-based web components:
@@ -478,7 +480,8 @@ zmzimletctl listZimlets
 
 ### Reference Files
 
-- **`references/slot-api.md`** - Complete slot documentation
+- **`references/slot-api.md`** - Complete 50+ slot documentation with categories, patterns, and discovery tips
+- **`references/code-patterns.md`** - Best practices for project structure, components, stores, and services
 - **`references/graphql-schema.md`** - Zimbra GraphQL schema
 
 ### Example Files
@@ -486,3 +489,10 @@ zmzimletctl listZimlets
 - **`examples/modern-menu-zimlet/`** - Menu integration example
 - **`examples/modern-sidebar-zimlet/`** - Sidebar panel example
 - **`examples/modern-graphql-zimlet/`** - GraphQL data fetching
+
+### Online Resources
+
+- [Zimbra Zimlet Guide](https://github.com/Zimbra/zm-zimlet-guide)
+- [Zimbra Wiki - ModernUI Zimlets](https://wiki.zimbra.com/wiki/ModernUI-Zimlets)
+- [Zimbra Zimlet Gallery](https://gallery.zetalliance.org/extend/category/modern)
+- [Preact Documentation](https://preactjs.com/guide/v10/getting-started)
