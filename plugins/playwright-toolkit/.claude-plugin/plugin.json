@@ -1,0 +1,18 @@
+{
+  "name": "playwright-toolkit",
+  "version": "1.0.0",
+  "description": "Advanced UI analysis, debugging, and understanding skills combining Playwright MCP tools, browser APIs, and OS-level tools like ffmpeg and ImageMagick",
+  "author": {
+    "name": "Noreddine Belhadj Cheikh",
+    "email": "noreddine.belhadjcheikh@gmail.com"
+  },
+  "keywords": [
+    "playwright",
+    "browser",
+    "debugging",
+    "performance",
+    "accessibility",
+    "visual-regression",
+    "web-vitals"
+  ]
+}

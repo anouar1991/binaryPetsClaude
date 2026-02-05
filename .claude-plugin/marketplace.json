@@ -29,6 +29,17 @@
       },
       "source": "./plugins/zimbra-toolkit",
       "category": "development"
+    },
+    {
+      "name": "playwright-toolkit",
+      "description": "Advanced UI analysis, debugging, and understanding skills combining Playwright MCP tools, browser APIs, and OS-level tools like ffmpeg and ImageMagick",
+      "version": "1.0.0",
+      "author": {
+        "name": "Noreddine Belhadj Cheikh",
+        "email": "noreddine.belhadjcheikh@gmail.com"
+      },
+      "source": "./plugins/playwright-toolkit",
+      "category": "development"
     }
   ]
 }
